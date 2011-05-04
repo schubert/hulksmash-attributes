@@ -9,7 +9,7 @@ describe HulkSmash::Attributes do
       include HulkSmash::Attributes
     end
   end
-  
+
   describe ".hulk" do
     it "should yield a block into a smash class" do
       TestClass.class_eval do
@@ -17,7 +17,7 @@ describe HulkSmash::Attributes do
         end
       end
     end
-    
+
     context "given a defined mapping" do
       before do
         TestClass.class_eval do
@@ -40,24 +40,24 @@ describe HulkSmash::Attributes do
         its(:undo) { should == {"Colour" => "BLUE"} }
         its(:color) { should == "blue" }
       end
-      
+
       describe ".new" do
         subject { TestClass.new({"Colour" => "Blue"}) }
-        
+
         its(:attributes) { should == {"color" => "blue" }}
       end
-      
+
       describe "#undo" do
         subject { TestClass.new({"Colour" => "Blue"}).undo }
-        
+
         it { should == {"Colour" => "BLUE"} }
       end
-      
+
       it "should be a 'smashing' success" do
         true.should be_true
       end
-      
+
     end
   end
-  
+
 end
