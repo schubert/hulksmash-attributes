@@ -1,0 +1,50 @@
+= Hulk Smash Attributes
+
+* http://github.com/schubert/hulksmash-attributes
+
+== DESCRIPTION
+
+Hulk Angry at having to convert web service responses to usable data for application...
+
+HULK SMASH ATTRIBUTES!
+
+== INSTALL
+
+Add hulksmash-attributes to your Gemfile
+
+  gem 'hulksmash-attributes'
+
+Then run:
+
+  $ bundle
+
+== USAGE
+  
+  class Wallpaper
+    include HulkSmash::Attributes
+
+    hulk do
+      smash "Colour", into: "color",
+                      using: ->(value) {
+                        value.downcase
+                      },
+                      undo: ->(value) {
+                        value.upcase
+                      }
+    end
+  end
+
+  wallpaper = Wallpaper.new("Colour" => "BLUE")
+  wallpaper.attributes = {"color" => "blue"}
+  wallpaper.color => "blue"
+  wallpaper.undo => {"Colour" => "BLUE"}
+
+== REQUIREMENTS
+
+* Ruby 1.9.x (Not really but I wrote this using newstyle hash and lambda syntax, give me a pull request if you want ruby 1.8.x support)
+* ActiveModel 3.x
+
+== LICENSE
+
+MIT
+
