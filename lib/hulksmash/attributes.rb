@@ -16,7 +16,7 @@ module HulkSmash
       end
 
       def hulk(&block)
-        @smasher = Smash.new(&block)
+        @smasher = Smash.new(self, &block)
       end
 
       def smasher
@@ -27,12 +27,18 @@ module HulkSmash
 
     module InstanceMethods
       def initialize(attrs = {})
-        attributes = self.class.smasher.using(attrs) if self.class.smasher
-        super(attributes)
+        attrs = self.class.smasher.using(attrs) if can_smash?
+        super(attrs)
       end
 
       def undo
-        self.class.smasher.present? ? self.class.smasher.undo(attributes) : attributes
+        can_smash? ? self.class.smasher.undo(attributes) : attributes
+      end
+
+      private
+
+      def can_smash?
+        self.class.smasher && self.class.smasher.smashed_attributes.any?
       end
     end
   end

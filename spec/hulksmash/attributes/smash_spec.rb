@@ -2,7 +2,7 @@ require "spec_helper"
 
 describe HulkSmash::Attributes::Smash do
   let(:hulk) do
-    HulkSmash::Attributes::Smash.new do
+    HulkSmash::Attributes::Smash.new(Object) do
     end
   end
 
@@ -49,6 +49,31 @@ describe HulkSmash::Attributes::Smash do
 
       it "should smash the value using the lambda when coming in" do
         subject.undo("colour" => "BLUE")["color"].should == "Blue"
+      end
+    end
+  end
+
+  describe "#default" do
+    let(:key_upcase) { ->(value) { value.upcase} }
+    let(:value_reverse) { ->(value) { value.reverse} }
+    subject { hulk.default(*default_args) }
+
+    context "when there is no matching explicit smasher" do
+      let(:default_args) { [key_upcase, {using: value_reverse}] }
+
+      it "uses the default smasher" do
+        subject.using("color" => "red")["RED"].should == "der"
+      end
+    end
+
+    context "when there is a matching explicit smasher" do
+      let(:default_args) { [key_upcase, {using: value_reverse}] }
+      before do
+        subject.smash "color", into: "Color", using: ->(value) { value.upcase }
+      end
+
+      it "uses the matching smasher" do
+        subject.using("color" => "blue")["Color"].should == "BLUE"
       end
     end
   end
