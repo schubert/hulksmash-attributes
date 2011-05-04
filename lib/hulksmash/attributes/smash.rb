@@ -51,13 +51,12 @@ module HulkSmash
       end
 
       def smash_attributes(attributes, smasher)
-        attributes.inject({}) do |result, key_value|
-          original_key, value = key_value
+        attributes.inject({}) do |result, (original_key, value)|
           if smasher.has_key? original_key
             key = smasher[original_key][:into]
             result[key] = smasher[original_key][:using].call(value)
           elsif @default_smasher.present?
-            key = @default_smasher[:key].call(value)
+            key = @default_smasher[:key].call(original_key)
             result[key] = @default_smasher[:using].call(value)
           else
             result[original_key] = value

@@ -62,7 +62,7 @@ describe HulkSmash::Attributes::Smash do
       let(:default_args) { [key_upcase, {using: value_reverse}] }
 
       it "uses the default smasher" do
-        subject.using("color" => "red")["RED"].should == "der"
+        subject.using("color" => "red")["COLOR"].should == "der"
       end
     end
 
