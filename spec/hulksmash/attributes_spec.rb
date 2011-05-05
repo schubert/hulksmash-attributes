@@ -71,7 +71,7 @@ describe HulkSmash::Attributes do
           include HulkSmash::Attributes
 
           hulk do
-            default ->(value) { value.upcase }
+            default anything, into: ->(value) { value.upcase }
           end
         end
       end
@@ -139,6 +139,29 @@ describe HulkSmash::Attributes do
         instance = TestWithMassAssignmentSecurity.new("HisColor" => "green")
         instance.attributes["other_color"].should == "green"
       end
+    end
+  end
+
+  describe "#attributes=" do
+    with_model :test_attributes do
+      table do |t|
+        t.string :color
+      end
+      model do
+        include HulkSmash::Attributes
+
+        hulk do
+          smash "MyColor", into: "color"
+        end
+
+      end
+    end
+
+    it "should re-smash new attributes" do
+      instance = TestAttributes.new("MyColor" => "green")
+      instance.attributes["color"].should == "green"
+      instance.attributes = {"MyColor" => "blue"}
+      instance.attributes["color"].should == "blue"
     end
   end
 

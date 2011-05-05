@@ -4,7 +4,7 @@ module HulkSmash
       klass.send :extend, HulkSmash::Attributes::ClassMethods
       unless klass.instance_methods.include?(:attributes=)
         klass.class_eval do
-          attr_accessor :attributes
+          attr_reader :attributes
         end
       end
       klass.send :include, HulkSmash::Attributes::InstanceMethods

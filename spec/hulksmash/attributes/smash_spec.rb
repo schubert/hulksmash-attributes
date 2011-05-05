@@ -63,21 +63,37 @@ describe HulkSmash::Attributes::Smash do
     end
   end
 
+  describe "#anything" do
+    it "returns a passthrough proc" do
+      hulk.anything.call("foo").should == "foo"
+    end
+  end
+
   describe "#default" do
+    let(:passthrough) { ->(value) { value } }
     let(:key_upcase) { ->(value) { value.upcase} }
+    let(:key_downcase) { ->(value) { value.downcase} }
     let(:value_reverse) { ->(value) { value.reverse} }
     subject { hulk.default(*default_args) }
 
     context "when there is no matching explicit smasher" do
-      let(:default_args) { [key_upcase, {using: value_reverse}] }
+      let(:default_args) { [passthrough, {into: key_upcase, using: value_reverse}] }
 
       it "uses the default smasher" do
-        subject.using("color" => "red")["COLOR"].should == "der"
+        subject.using("giant" => "maybe")["GIANT"].should == "ebyam"
+      end
+    end
+
+    context "undo with the default" do
+      let(:default_args) { [key_upcase, {into: key_downcase}] }
+
+      it "uses the default smasher" do
+        subject.undo("happy" => "yes")["HAPPY"].should == "yes"
       end
     end
 
     context "when there is a matching explicit smasher" do
-      let(:default_args) { [key_upcase, {using: value_reverse}] }
+      let(:default_args) { [passthrough, { into: key_upcase, using: value_reverse}] }
       before do
         subject.smash "color", into: "Color", using: ->(value) { value.upcase }
       end
