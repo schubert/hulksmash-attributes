@@ -26,9 +26,13 @@ module HulkSmash
     end
 
     module InstanceMethods
-      def initialize(attrs = {})
-        attrs = self.class.smasher.using(attrs) if can_smash?
-        super(attrs)
+      def initialize(attributes = {})
+        @attributes = self.class.smasher.using(attributes) if can_smash?
+        super(@attributes)
+      end
+
+      def attributes=(attributes = {})
+        @attributes = self.class.smasher.using(attributes) if can_smash?
       end
 
       def undo
@@ -38,7 +42,7 @@ module HulkSmash
       private
 
       def can_smash?
-        self.class.smasher && self.class.smasher.smashed_attributes.any?
+        self.class.smasher && (self.class.smasher.smashed_attributes.any? || self.class.smasher.default_smasher.present?)
       end
     end
   end

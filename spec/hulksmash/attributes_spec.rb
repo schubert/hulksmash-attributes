@@ -3,6 +3,7 @@ require "spec_helper"
 describe HulkSmash::Attributes do
 
   describe ".hulk" do
+
     with_model :test_class do
       table do |t|
         t.string "color"
@@ -59,8 +60,27 @@ describe HulkSmash::Attributes do
         it { should == {"Colour" => "BLUE"} }
       end
 
-      it "should be a 'smashing' success" do
-        true.should be_true
+    end
+
+    context "given a mapping with only a default" do
+      with_model :test_default_class do
+        table do |t|
+          t.string "color"
+        end
+        model do
+          include HulkSmash::Attributes
+
+          hulk do
+            default ->(value) { value.upcase }
+          end
+        end
+      end
+
+      describe ".new" do
+        subject { TestDefaultClass.new({"Something" => "else"}) }
+
+        its(:attributes) { should == {"SOMETHING" => "else" }}
+        its(:undo) { should == {"SOMETHING" => "else" }}
       end
 
     end
