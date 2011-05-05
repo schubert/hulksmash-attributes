@@ -82,7 +82,30 @@ describe HulkSmash::Attributes do
         its(:attributes) { should == {"SOMETHING" => "else" }}
         its(:undo) { should == {"SOMETHING" => "else" }}
       end
+    end
 
+    context "given a mapping with hulk-approved constant or nil" do
+      with_model :test_nil_class do
+        table do |t|
+          t.string "apple_pie"
+        end
+        model do
+          include HulkSmash::Attributes
+
+          hulk do
+            smash "yourface", into: TINY_LITTLE_PIECES
+            smash "yourhand", into: nil
+            smash "apples", into: "apple_pie"
+          end
+        end
+      end
+
+      describe ".new" do
+        subject { TestNilClass.new({"yourhand" => "theleftone", "yourface" => "oblivion", "apples" => "red_and_shiny"}) }
+
+        its(:attributes) { should == {"apple_pie" => "red_and_shiny" }}
+        its(:undo) { should == {"apples" => "red_and_shiny" }}
+      end
     end
   end
 

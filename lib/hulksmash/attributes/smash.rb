@@ -2,6 +2,10 @@ module HulkSmash
 
   module Attributes
     class Smash
+      OBLIVION = nil
+      TINY_PIECES = nil
+      TINY_LITTLE_PIECES = nil
+
       attr_accessor :smashed_attributes, :unsmashed_attributes, :default_smasher
 
       def initialize(klass, &block)
@@ -54,10 +58,10 @@ module HulkSmash
         attributes.inject({}) do |result, (original_key, value)|
           if smasher.has_key? original_key
             key = smasher[original_key][:into]
-            result[key] = smasher[original_key][:using].call(value)
+            result[key] = smasher[original_key][:using].call(value) unless key.nil?
           elsif default_smasher.present?
             key = default_smasher[:key].call(original_key)
-            result[key] = default_smasher[:using].call(value)
+            result[key] = default_smasher[:using].call(value) unless key.nil?
           else
             result[original_key] = value
           end

@@ -31,6 +31,16 @@ describe HulkSmash::Attributes::Smash do
       end
     end
 
+    context "when the into is nil" do
+      let(:something) { ["color", {into: nil}] }
+      subject { hulk.smash(*something) }
+
+      it "should smash the attribute into nothing" do
+        subject.using("color" => "blue").should_not have_key(nil)
+        subject.using("color" => "blue").values.should_not include("blue")
+      end
+    end
+
     context "when a using lambda is provided" do
       let(:reverse_color) { ->(value) { value.reverse } }
       let(:something) { ["color", {into: "colour", using: reverse_color}] }
