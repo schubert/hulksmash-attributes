@@ -3,6 +3,7 @@ module HulkSmash
   module Attributes
     class Smash
       OBLIVION = nil
+      BITS = nil
       TINY_PIECES = nil
       TINY_LITTLE_PIECES = nil
 
