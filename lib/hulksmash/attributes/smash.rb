@@ -7,36 +7,36 @@ module HulkSmash
       TINY_PIECES = nil
       TINY_LITTLE_PIECES = nil
 
-      attr_accessor :smashed_attributes, :unsmashed_attributes, :default_smasher, :undefault_smasher
+      attr_accessor :smashed_attributes,
+        :unsmashed_attributes,
+        :default_smasher,
+        :undefault_smasher,
+        :multiple_matches
 
       def initialize(klass, &block)
         @smashed_attributes ||= {}
         @unsmashed_attributes ||= {}
+        @multiple_matches ||= {}
         @klass = klass
         instance_eval &block
       end
 
-      def smash(attribute, user_options = {})
+      def smash(attributes, user_options = {})
         raise(HulkSmash::Angry, "You must provide an :into option") unless user_options.has_key?(:into)
+        into, using, undo = parse_options(user_options)
 
-        options = { using: anything, undo: anything }.merge(user_options)
+        Array(attributes).each do |attribute|
+          self.smashed_attributes[attribute] = {into: into, using: using }
+        end
+        self.multiple_matches[into] = {keys: attributes } if attributes.is_a? Array
 
-        into = options[:into]
-        undo = options[:undo]
-        using = options[:using]
-
-        self.smashed_attributes[attribute] = {into: into, using: using }
-        self.unsmashed_attributes[into] = {into: attribute, using: undo }
-
+        self.unsmashed_attributes[into] = {into: attributes, using: undo }
         add_attribute_to_attr_accessible(into) if has_attribute_protection?
         self
       end
 
       def default(undo_key_proc, user_options = {})
-        options = { into: anything, using: anything, undo: anything }.merge(user_options)
-        into = options[:into]
-        undo = options[:undo]
-        using = options[:using]
+        into, using, undo = parse_options(user_options)
 
         self.default_smasher = { into: into, using: using }
         self.undefault_smasher = { into: undo_key_proc, using: undo }
@@ -57,6 +57,11 @@ module HulkSmash
 
       private
 
+      def parse_options(user_options)
+        options = { into: anything, using: anything, undo: anything }.merge(user_options)
+        [options[:into], options[:using], options[:undo]]
+      end
+
       def add_attribute_to_attr_accessible(attribute)
         @klass.attr_accessible attribute
       end
@@ -69,7 +74,13 @@ module HulkSmash
         attributes.inject({}) do |result, (original_key, value)|
           if smasher.has_key? original_key
             key = smasher[original_key][:into]
+            key = self.multiple_matches[original_key][:used] if key.is_a? Array
+
             result[key] = smasher[original_key][:using].call(value) unless key.nil?
+
+            if key.present? && self.multiple_matches.has_key?(key)
+              self.multiple_matches[key][:used] = original_key
+            end
           elsif default.present?
             key = default[:into].call(original_key)
             result[key] = default[:using].call(value) unless key.nil?

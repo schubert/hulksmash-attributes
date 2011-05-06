@@ -7,9 +7,10 @@ describe HulkSmash::Attributes::Smash do
   end
 
   describe "#smash" do
-    subject { hulk.smash(*something) }
+    subject { hulk.smash(*arguments) }
+
     context "when no :into is provided" do
-      let(:something) { ["color"] }
+      let(:arguments) { ["color"] }
 
       it "should get angry" do
         lambda {
@@ -18,9 +19,18 @@ describe HulkSmash::Attributes::Smash do
       end
     end
 
+    context "when given an array of attributes" do
+      let(:arguments) { [["COLOR", "COLOUR"], {into: "color"}] }
+
+      it "should smash either attribute" do
+        subject.using("COLOR" => "blue")["color"].should == "blue"
+        subject.using("COLOUR" => "blue")["color"].should == "blue"
+      end
+
+    end
+
     context "when only an :into is provided" do
-      let(:something) { ["color", {into: "colour"}] }
-      subject { hulk.smash(*something) }
+      let(:arguments) { ["color", {into: "colour"}] }
 
       it "should smash the attribute into the specified attribute" do
         subject.using("color" => "blue").should have_key("colour")
@@ -32,8 +42,7 @@ describe HulkSmash::Attributes::Smash do
     end
 
     context "when the into is nil" do
-      let(:something) { ["color", {into: nil}] }
-      subject { hulk.smash(*something) }
+      let(:arguments) { ["color", {into: nil}] }
 
       it "should smash the attribute into nothing" do
         subject.using("color" => "blue").should_not have_key(nil)
@@ -43,8 +52,7 @@ describe HulkSmash::Attributes::Smash do
 
     context "when a using lambda is provided" do
       let(:reverse_color) { ->(value) { value.reverse } }
-      let(:something) { ["color", {into: "colour", using: reverse_color}] }
-      subject { hulk.smash(*something) }
+      let(:arguments) { ["color", {into: "colour", using: reverse_color}] }
 
       it "should smash the value using the lambda when coming in" do
         subject.using("color" => "blue")["colour"].should == "eulb"
@@ -54,8 +62,7 @@ describe HulkSmash::Attributes::Smash do
     context "when an undo lambda is provided" do
       let(:upcase_color) { ->(value) { value.upcase } }
       let(:capitalize_color) { ->(value) { value.capitalize } }
-      let(:something) { ["color", {into: "colour", using: upcase_color, undo: capitalize_color}] }
-      subject { hulk.smash(*something) }
+      let(:arguments) { ["color", {into: "colour", using: upcase_color, undo: capitalize_color}] }
 
       it "should smash the value using the lambda when coming in" do
         subject.undo("colour" => "BLUE")["color"].should == "Blue"

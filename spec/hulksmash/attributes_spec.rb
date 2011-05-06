@@ -107,6 +107,43 @@ describe HulkSmash::Attributes do
         its(:undo) { should == {"apples" => "red_and_shiny" }}
       end
     end
+
+    context "given a mapping with an array of attributes" do
+      with_model :test_array_class do
+        table do |t|
+          t.string "pie"
+        end
+        model do
+          include HulkSmash::Attributes
+
+          hulk do
+            smash ["apples", "pecans"], into: "pie"
+          end
+        end
+      end
+
+      describe ".new" do
+        context "given the first attribute" do
+          subject { TestArrayClass.new({"apples" => "yummy"}) }
+
+          it "should give the correct attributes and undo" do
+            instance = subject
+            instance.attributes.should == {"pie" => "yummy" }
+            instance.undo.should == {"apples" => "yummy" }
+          end
+        end
+
+        context "given the second attribute" do
+          subject { TestArrayClass.new({"pecans" => "yummy"}) }
+
+          it "should give the correct attributes and undo" do
+            instance = subject
+            instance.attributes.should == {"pie" => "yummy" }
+            instance.undo.should == {"pecans" => "yummy" }
+          end
+        end
+      end
+    end
   end
 
   describe "#initialize" do
