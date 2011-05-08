@@ -6,7 +6,7 @@
 
 Hulk Angry at having to convert web service responses to usable data for application...
 
-HULK SMASH ATTRIBUTES!
+HULK SMASH ATTRIBUTES! ( see http://www.youtube.com/watch?v=7nrCvjg6nsI for details )
 
 == INSTALL
 
@@ -24,20 +24,18 @@ Then run:
     include HulkSmash::Attributes
 
     hulk do
-      smash "Colour", into: "color",
-                      using: ->(value) {
-                        value.downcase
-                      },
-                      undo: ->(value) {
-                        value.upcase
-                      }
+      smash ["Color", "Colour"], into: "color",
+                                 using: ->(value) { value.downcase },
+                                 undo: ->(value) { value.upcase }
+      smash "FlowerPrint", into: nil
+      
+      default ->(key) { key.camelize }, into: ->(key) { key.underscore } 
     end
   end
 
-  wallpaper = Wallpaper.new("Colour" => "BLUE")
-  wallpaper.attributes = {"color" => "blue"}
-  wallpaper.color => "blue"
-  wallpaper.undo => {"Colour" => "BLUE"}
+  wallpaper = Wallpaper.new("Colour" => "BLUE", "FlowerPrint" => "daisies", "CakeAndPie" => "yes please")
+  wallpaper.attributes = {"color" => "blue", "cake_and_pie" => "yes please"}
+  wallpaper.undo => {"Colour" => "BLUE", "CakeAndPie" => "yes please"}  
 
 == REQUIREMENTS
 
